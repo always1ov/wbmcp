@@ -1,0 +1,12 @@
+services:
+  weibo-archive:
+    build: .
+    container_name: weibo-archive
+    restart: unless-stopped
+    ports:
+      - "8848:8848"
+    volumes:
+      - ./data:/data        # SQLite 文件 + 词典持久化到宿主机 ./data
+    environment:
+      - DB_PATH=/data/weibo.db
+      - STOCK_ALIAS_PATH=/data/stock_alias.json
