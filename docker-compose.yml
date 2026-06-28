@@ -1,6 +1,6 @@
 services:
   weibo-archive:
-    build: .
+    image: ghcr.io/always1ov/wbmcp:latest
     container_name: weibo-archive
     restart: unless-stopped
     ports:
