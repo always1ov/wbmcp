@@ -153,6 +153,23 @@ def recent_stocks(days: int = 7, limit: int = 20):
     return {"days": days, "results": [dict(r) for r in rows]}
 
 
+@app.delete("/conversations")
+def delete_conversation(conversation: str):
+    """删除某个会话的全部消息及其股票提及记录。"""
+    with get_conn() as conn:
+        ids = [r[0] for r in conn.execute(
+            "SELECT id FROM messages WHERE conversation = ?", (conversation,)
+        ).fetchall()]
+        if ids:
+            placeholders = ",".join("?" * len(ids))
+            conn.execute(f"DELETE FROM stock_mentions WHERE message_id IN ({placeholders})", ids)
+        deleted = conn.execute(
+            "DELETE FROM messages WHERE conversation = ?", (conversation,)
+        ).rowcount
+        conn.commit()
+    return {"ok": True, "deleted": deleted}
+
+
 @app.get("/sender_stocks")
 def sender_stocks(sender: str, limit: int = 50):
     """某人聊过哪些票，各多少次。"""

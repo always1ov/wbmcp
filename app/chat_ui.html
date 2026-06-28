@@ -84,30 +84,49 @@
     border-bottom: 1px solid #ddd;
     background: #efefef;
   }
-  #conv-list {
-    flex: 1;
-    overflow-y: auto;
-  }
+  #conv-list { flex: 1; overflow-y: auto; }
+
   .conv-item {
-    padding: 12px 14px;
+    padding: 10px 14px;
     cursor: pointer;
     border-bottom: 1px solid #e8e8e8;
     transition: background .15s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
   }
   .conv-item:hover  { background: #e8e8e8; }
   .conv-item.active { background: #07c160; color: #fff; }
-  .conv-item .conv-name {
+  .conv-item-info { flex: 1; min-width: 0; }
+  .conv-name {
     font-size: 14px;
     font-weight: 500;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
   }
-  .conv-item .conv-meta {
-    font-size: 11px;
-    margin-top: 2px;
-    opacity: .65;
+  .conv-meta { font-size: 11px; margin-top: 2px; opacity: .65; }
+
+  .del-btn {
+    flex-shrink: 0;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(0,0,0,.12);
+    color: #666;
+    font-size: 13px;
+    line-height: 1;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity .15s, background .15s;
   }
+  .conv-item:hover .del-btn { opacity: 1; }
+  .conv-item.active .del-btn { background: rgba(255,255,255,.25); color: #fff; opacity: 1; }
+  .del-btn:hover { background: #f44336 !important; color: #fff !important; }
 
   /* 右侧聊天区 */
   #chat-panel {
@@ -128,7 +147,7 @@
     align-items: center;
     gap: 10px;
   }
-  #chat-header span { flex: 1; }
+  #chat-title { flex: 1; }
   #msg-count { font-size: 12px; color: #999; font-weight: 400; }
 
   #messages {
@@ -140,10 +159,7 @@
     gap: 14px;
   }
 
-  #load-more-wrap {
-    text-align: center;
-    padding: 8px 0 4px;
-  }
+  #load-more-wrap { text-align: center; padding: 8px 0 4px; }
   #load-more-btn {
     background: rgba(0,0,0,.06);
     border: none;
@@ -156,22 +172,13 @@
   #load-more-btn:hover { background: rgba(0,0,0,.1); }
 
   /* 消息气泡 */
-  .msg-row {
-    display: flex;
-    gap: 10px;
-    align-items: flex-start;
-  }
+  .msg-row { display: flex; gap: 10px; align-items: flex-start; }
   .avatar {
-    width: 38px;
-    height: 38px;
+    width: 38px; height: 38px;
     border-radius: 50%;
     background: #bbb;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 15px;
-    font-weight: 600;
-    color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 15px; font-weight: 600; color: #fff;
     flex-shrink: 0;
     text-transform: uppercase;
   }
@@ -187,73 +194,63 @@
     word-break: break-word;
     box-shadow: 0 1px 2px rgba(0,0,0,.08);
   }
-  .bubble-time {
-    font-size: 10px;
-    color: #bbb;
-    margin-top: 2px;
-  }
+  .bubble-time { font-size: 10px; color: #bbb; margin-top: 2px; }
 
-  /* 媒体 */
   .media-imgs { margin-top: 6px; display: flex; flex-wrap: wrap; gap: 4px; }
   .media-imgs img {
-    max-width: 180px;
-    max-height: 180px;
-    border-radius: 6px;
-    cursor: zoom-in;
-    object-fit: cover;
+    max-width: 180px; max-height: 180px;
+    border-radius: 6px; cursor: zoom-in; object-fit: cover;
   }
-  .media-link {
-    margin-top: 5px;
-    font-size: 12px;
-    color: #07c160;
-    word-break: break-all;
-  }
+  .media-link { margin-top: 5px; font-size: 12px; color: #07c160; word-break: break-all; }
 
-  /* 空态 */
   #empty-hint {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #bbb;
-    font-size: 15px;
-    height: 100%;
+    flex: 1; display: flex; align-items: center; justify-content: center;
+    color: #bbb; font-size: 15px; height: 100%;
   }
 
-  /* 图片灯箱 */
+  /* 灯箱 */
   #lightbox {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,.85);
-    z-index: 100;
-    align-items: center;
-    justify-content: center;
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,.85); z-index: 100;
+    align-items: center; justify-content: center;
   }
   #lightbox.show { display: flex; }
   #lightbox img { max-width: 90vw; max-height: 90vh; border-radius: 6px; }
 
   /* 搜索框 */
-  #search-wrap {
-    padding: 8px 10px;
-    border-bottom: 1px solid #ddd;
-    background: #f7f7f7;
-  }
+  #search-wrap { padding: 8px 10px; border-bottom: 1px solid #ddd; background: #f7f7f7; }
   #search-input {
-    width: 100%;
-    border: 1px solid #ddd;
-    border-radius: 20px;
-    padding: 6px 12px;
-    font-size: 13px;
-    outline: none;
-    background: #fff;
+    width: 100%; border: 1px solid #ddd; border-radius: 20px;
+    padding: 6px 12px; font-size: 13px; outline: none; background: #fff;
   }
   #search-input:focus { border-color: #07c160; }
 
+  /* 确认弹窗 */
+  #confirm-mask {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,.45); z-index: 200;
+    align-items: center; justify-content: center;
+  }
+  #confirm-mask.show { display: flex; }
+  #confirm-box {
+    background: #fff; border-radius: 14px;
+    padding: 28px 24px 20px; width: min(320px, 88vw);
+    text-align: center; box-shadow: 0 8px 32px rgba(0,0,0,.2);
+  }
+  #confirm-box h3 { font-size: 16px; color: #1a1a1a; margin-bottom: 8px; }
+  #confirm-box p  { font-size: 13px; color: #888; margin-bottom: 22px; }
+  .confirm-btns { display: flex; gap: 10px; }
+  .confirm-btns button {
+    flex: 1; padding: 11px; border: none; border-radius: 10px;
+    font-size: 14px; cursor: pointer;
+  }
+  #confirm-cancel { background: #f0f0f0; color: #555; }
+  #confirm-ok     { background: #f44336; color: #fff; }
+
   @media (max-width: 600px) {
     #sidebar { width: 120px; min-width: 100px; }
-    .conv-item .conv-name { font-size: 12px; }
-    .conv-item .conv-meta { display: none; }
+    .conv-name { font-size: 12px; }
+    .conv-meta { display: none; }
   }
 </style>
 </head>
@@ -270,7 +267,6 @@
 
 <!-- 主界面 -->
 <div id="app">
-  <!-- 左侧 -->
   <div id="sidebar">
     <div id="sidebar-header">会话列表</div>
     <div id="search-wrap">
@@ -279,7 +275,6 @@
     <div id="conv-list"></div>
   </div>
 
-  <!-- 右侧 -->
   <div id="chat-panel">
     <div id="chat-header">
       <span id="chat-title">请选择一个会话</span>
@@ -297,9 +292,22 @@
 <!-- 灯箱 -->
 <div id="lightbox"><img id="lb-img" src="" /></div>
 
+<!-- 删除确认弹窗 -->
+<div id="confirm-mask">
+  <div id="confirm-box">
+    <h3>删除会话</h3>
+    <p id="confirm-text"></p>
+    <div class="confirm-btns">
+      <button id="confirm-cancel">取消</button>
+      <button id="confirm-ok">确认删除</button>
+    </div>
+  </div>
+</div>
+
 <script>
 const CORRECT_PWD = "888";
 const PAGE_SIZE = 50;
+const LS_KEY = "wb_current_conv";
 
 let currentConv = null;
 let currentOffset = 0;
@@ -323,16 +331,21 @@ function unlock() {
     pwdInput.focus();
   }
 }
-
 document.getElementById("unlock-btn").onclick = unlock;
 pwdInput.addEventListener("keydown", e => { if (e.key === "Enter") unlock(); });
 
 // ---- 会话列表 ----
-async function loadConversations() {
+async function loadConversations(restoreConv) {
   const res = await fetch("/conversations");
   const data = await res.json();
   allConvs = data.results || [];
   renderConvList(allConvs);
+
+  // 刷新后恢复上次选中的会话
+  const saved = restoreConv ?? localStorage.getItem(LS_KEY);
+  if (saved && allConvs.find(c => c.conversation === saved)) {
+    openConv(saved);
+  }
 }
 
 function renderConvList(list) {
@@ -346,11 +359,26 @@ function renderConvList(list) {
     const item = document.createElement("div");
     item.className = "conv-item" + (conv.conversation === currentConv ? " active" : "");
     item.dataset.name = conv.conversation;
-    item.innerHTML = `
+
+    const info = document.createElement("div");
+    info.className = "conv-item-info";
+    info.innerHTML = `
       <div class="conv-name">${esc(conv.conversation || "（未命名）")}</div>
       <div class="conv-meta">${conv.msg_count} 条 · ${fmtTime(conv.last_at)}</div>
     `;
-    item.onclick = () => openConv(conv.conversation);
+    info.onclick = () => openConv(conv.conversation);
+
+    const delBtn = document.createElement("button");
+    delBtn.className = "del-btn";
+    delBtn.title = "删除会话";
+    delBtn.textContent = "×";
+    delBtn.onclick = (e) => {
+      e.stopPropagation();
+      confirmDelete(conv.conversation);
+    };
+
+    item.appendChild(info);
+    item.appendChild(delBtn);
     el.appendChild(item);
   });
 }
@@ -366,6 +394,7 @@ async function openConv(name) {
   currentConv = name;
   currentOffset = 0;
   currentTotal = 0;
+  localStorage.setItem(LS_KEY, name);
 
   document.querySelectorAll(".conv-item").forEach(el => {
     el.classList.toggle("active", el.dataset.name === name);
@@ -375,13 +404,12 @@ async function openConv(name) {
   document.getElementById("messages").innerHTML = "";
   document.getElementById("load-more-wrap").style.display = "none";
 
-  await loadMessages(false);
-  // 滚动到底
+  await loadMessages();
   const msgEl = document.getElementById("messages");
   msgEl.scrollTop = msgEl.scrollHeight;
 }
 
-async function loadMessages(prepend = false) {
+async function loadMessages() {
   const url = `/messages?conversation=${encodeURIComponent(currentConv)}&offset=${currentOffset}&limit=${PAGE_SIZE}`;
   const res = await fetch(url);
   const data = await res.json();
@@ -395,31 +423,55 @@ async function loadMessages(prepend = false) {
 
   const fragment = document.createDocumentFragment();
   data.results.forEach(m => fragment.appendChild(buildBubble(m)));
-
-  if (prepend) {
-    const firstChild = msgEl.firstChild;
-    msgEl.insertBefore(fragment, firstChild);
-  } else {
-    msgEl.appendChild(fragment);
-  }
-
+  msgEl.appendChild(fragment);
   currentOffset += data.results.length;
 
-  const loadMoreWrap = document.getElementById("load-more-wrap");
-  if (currentOffset < currentTotal) {
-    loadMoreWrap.style.display = "block";
-  } else {
-    loadMoreWrap.style.display = "none";
-  }
+  document.getElementById("load-more-wrap").style.display =
+    currentOffset < currentTotal ? "block" : "none";
 }
 
 document.getElementById("load-more-btn").onclick = async () => {
-  // 加载更旧的消息：重新设置 offset 为 0，获取 total-currentOffset 前的内容
-  // 实际上我们是正序加载，"加载更多"意味着继续往后
   const scrollEl = document.getElementById("messages");
   const prevH = scrollEl.scrollHeight;
-  await loadMessages(false);
+  await loadMessages();
   scrollEl.scrollTop = scrollEl.scrollHeight - prevH + scrollEl.scrollTop;
+};
+
+// ---- 删除会话 ----
+let pendingDeleteConv = null;
+
+function confirmDelete(name) {
+  pendingDeleteConv = name;
+  document.getElementById("confirm-text").textContent =
+    `将永久删除「${name}」中的所有消息，无法恢复。`;
+  document.getElementById("confirm-mask").classList.add("show");
+}
+
+document.getElementById("confirm-cancel").onclick = () => {
+  document.getElementById("confirm-mask").classList.remove("show");
+  pendingDeleteConv = null;
+};
+
+document.getElementById("confirm-ok").onclick = async () => {
+  if (!pendingDeleteConv) return;
+  const name = pendingDeleteConv;
+  document.getElementById("confirm-mask").classList.remove("show");
+  pendingDeleteConv = null;
+
+  await fetch(`/conversations?conversation=${encodeURIComponent(name)}`, { method: "DELETE" });
+
+  // 如果删的是当前会话，清空右侧
+  if (currentConv === name) {
+    currentConv = null;
+    localStorage.removeItem(LS_KEY);
+    document.getElementById("chat-title").textContent = "请选择一个会话";
+    document.getElementById("msg-count").textContent = "";
+    document.getElementById("messages").innerHTML =
+      '<div id="empty-hint" style="flex:1;display:flex;align-items:center;justify-content:center;color:#bbb;font-size:15px;height:100%">← 从左侧选择一个会话</div>';
+    document.getElementById("load-more-wrap").style.display = "none";
+  }
+
+  await loadConversations(currentConv);
 };
 
 // ---- 构建气泡 ----
@@ -445,7 +497,6 @@ function buildBubble(m) {
   const name = m.sender || "?";
   const color = avatarColor(name);
   const initial = [...name][0] || "?";
-
   const timeStr = m.sent_time || fmtTime(m.captured_at);
 
   let mediaHtml = "";
@@ -478,18 +529,15 @@ function buildBubble(m) {
 // ---- 工具 ----
 function esc(str) {
   return String(str ?? "")
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
+    .replace(/&/g, "&amp;").replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 }
 
 function fmtTime(iso) {
   if (!iso) return "";
   try {
     return new Date(iso.replace(" ", "T") + (iso.includes("+") ? "" : "Z")).toLocaleString("zh-CN", {
-      month: "2-digit", day: "2-digit",
-      hour: "2-digit", minute: "2-digit"
+      month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit"
     });
   } catch { return iso; }
 }
@@ -497,10 +545,7 @@ function fmtTime(iso) {
 // ---- 灯箱 ----
 const lightbox = document.getElementById("lightbox");
 const lbImg    = document.getElementById("lb-img");
-function showLightbox(src) {
-  lbImg.src = src;
-  lightbox.classList.add("show");
-}
+function showLightbox(src) { lbImg.src = src; lightbox.classList.add("show"); }
 lightbox.onclick = () => lightbox.classList.remove("show");
 </script>
 </body>
