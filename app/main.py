@@ -2,9 +2,11 @@
 # 接收插件上报的消息，写入 SQLite，并抽取个股提及。
 
 import json
+from pathlib import Path
 from typing import List, Optional
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
 
 from .db import init_db, get_conn
@@ -166,3 +168,61 @@ def sender_stocks(sender: str, limit: int = 50):
             (f"%{sender}%", limit),
         ).fetchall()
     return {"sender": sender, "results": [dict(r) for r in rows]}
+
+
+# ---------- 群聊查看接口 ----------
+
+@app.get("/conversations")
+def list_conversations():
+    """返回所有会话，按最新消息倒序。"""
+    with get_conn() as conn:
+        rows = conn.execute(
+            """
+            SELECT conversation,
+                   COUNT(*) AS msg_count,
+                   MAX(captured_at) AS last_at
+            FROM messages
+            GROUP BY conversation
+            ORDER BY last_at DESC
+            """
+        ).fetchall()
+    return {"results": [dict(r) for r in rows]}
+
+
+@app.get("/messages")
+def list_messages(conversation: str, offset: int = 0, limit: int = 50):
+    """按会话分页拉取消息（时间正序）。"""
+    with get_conn() as conn:
+        total = conn.execute(
+            "SELECT COUNT(*) AS c FROM messages WHERE conversation = ?",
+            (conversation,),
+        ).fetchone()["c"]
+        rows = conn.execute(
+            """
+            SELECT id, sender, text, media_json, sent_time, captured_at
+            FROM messages
+            WHERE conversation = ?
+            ORDER BY captured_at ASC
+            LIMIT ? OFFSET ?
+            """,
+            (conversation, limit, offset),
+        ).fetchall()
+    results = []
+    for r in rows:
+        d = dict(r)
+        try:
+            d["media"] = json.loads(d.pop("media_json") or "{}")
+        except Exception:
+            d["media"] = {}
+        results.append(d)
+    return {"total": total, "offset": offset, "limit": limit, "results": results}
+
+
+# ---------- 前端页面 ----------
+
+_HTML = (Path(__file__).parent / "chat_ui.html").read_text(encoding="utf-8")
+
+
+@app.get("/view", response_class=HTMLResponse)
+def view_ui():
+    return _HTML
